@@ -4,49 +4,48 @@ import java.util.*;
 public class NQueens{
 
 
-    public ArrayList<entity> gen = new ArrayList<>(), newGen = new ArrayList<>();
-    private int genSize, noChanges = -1, genSum, size;
+    private entity gen[], newGen[];
+    private int genSize, noChanges = 0, size;
+    private double genSum;
     private Random random = new Random();
     private entity best;
+
 
 
 
     public NQueens(int size){
 
         this.size = size;
-        genSize = (size*size);
-        for(int i = 0; i<genSize; i++) gen.add(new entity(size));
-        best = new entity(size);
-
+        genSize = (size*size)>>1;
+        gen = new entity[genSize];
+        newGen = new entity[genSize];
+        for(int i = 0; i < genSize; i++) gen[i] = new entity(size);
+        best = getBest();
 
     }
 
-    private entity crossing(entity f1, entity f2){
 
-        return new entity(f1, f2, size);
 
-    }   
-
-    private void sum(){
-
-        genSum = 0;
-        for(entity i: gen) genSum += i.fitness();
-        
-    }
 
     private double fitness(entity x){
+        return genSum/(x.fitness);
+    }
 
-        return genSum/(x.fitness());
+    private entity getBest(){
+
+        entity curr = gen[0];
+
+        for(int i = 0; i<size; i++) if(curr.fitness > gen[i].fitness) curr = gen[i];
+
+        return curr;
 
     }
 
     private void updateBest(){
 
-        entity aux = best;
+        entity aux = getBest();
 
-        for(int i = 0; i<gen.size(); i++) if(gen.get(i).fitness() < aux.fitness()) aux = gen.get(i);
-
-        if(aux.equals(best)) noChanges++;
+        noChanges = (aux.equals(best))? noChanges + 1: 0;
 
         best = aux;
 
@@ -66,36 +65,35 @@ public class NQueens{
 
 
 
-    public entity nextGen(){
+     public entity nextGen(){
 
-        if(noChanges > size*size || best.fitness() == 1) return best;
+        while (noChanges < size*size && best.fitness > 1){
 
-        sum();
-        updateBest();
-        newGen.clear();
-        newGen.add(best);
+            genSum = 0.0;
+            for (int i = 0; i<size; i++) genSum += fitness(gen[i]);
+            updateBest();
+            newGen[0] = best;
+            
+            for (int i = 1; i<genSize; i++){
 
-        // best.showBoard();
-        
-        for(int i = 0; i<genSize; i++){
+                double target1 = random.nextDouble() * genSum, target2 = random.nextDouble() * genSum;
+                double cumulativeFit = 0.0;
+                entity f1 = null, f2 = null;
 
-            double target1 = random.nextDouble() * genSum, target2 = random.nextDouble() * genSum;
-            double cumulativeFit = 0.0;
-            entity f1 = null, f2 = null;
+                int j = 0;
+                while (cumulativeFit < target1 && j < genSize) cumulativeFit += fitness(gen[j++]);
+                f1 = gen[Math.max(j-1, 0)];
 
-            int j = 0;
-            while(cumulativeFit < target1 && j < gen.size()) cumulativeFit += fitness(gen.get(j++));
-            f1 = gen.get(j-1);
-    
-            cumulativeFit = j = 0;
-            while(cumulativeFit < target2 && j < gen.size()) cumulativeFit += fitness(gen.get(j++));
-            f2 = gen.get(j-1);
+                cumulativeFit = j = 0;
+                while (cumulativeFit < target2 && j < genSize) cumulativeFit += fitness(gen[j++]);
+                f2 = gen[Math.max(j-1, 0)];
 
-            newGen.add(new entity(f1, f2, size));
+                newGen[i] = new entity(f1, f2, size);
+
+            }for(int i = 0; i<size; i++) gen[i] = newGen[i];
 
 
-        }gen = new ArrayList<>(newGen);
-        return nextGen();
+        }return best;
 
     }
 
@@ -104,10 +102,12 @@ public class NQueens{
 
     public static void main(String [] args){
 
-        NQueens n = new NQueens(25);
+        NQueens n = new NQueens(4);
         n.nextGen().showBoard();
         
     }
+
+
     
 
 }
