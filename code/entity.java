@@ -4,7 +4,7 @@ import java.util.*;
 
 public class entity implements Comparable<entity>{
 
-    public int board[];
+    public ArrayList<Integer> board = new ArrayList<>();
     public int size, fitness;
     private Random random = new Random();
 
@@ -12,8 +12,8 @@ public class entity implements Comparable<entity>{
     public entity(int size){
 
         this.size = size;
-        board = new int[size];
-        for(int i = 0; i<size; i++) board[i] = random.nextInt(size);
+        for(int i = 0; i<size; i++) board.add(i);
+        Collections.shuffle(board);
         Fitness();
 
     }
@@ -22,11 +22,13 @@ public class entity implements Comparable<entity>{
     public entity(entity f1, entity f2, int size){
 
         this.size = size;
-        board = new int[size];
-
+        BitSet msk = new BitSet(size);
         int cross = random.nextInt(size);
-        for(int i = 0; i<cross; i++) board[i] = f1.board[i];
-        for(int i = cross; i<size; i++) board[i] = f2.board[i];
+        for(int i = 0; i<cross; i++){
+            board.add(f1.board.get(i));
+            msk.set(f1.board.get(i));
+
+        }for(int i = 0; i<size; i++) if(!msk.get(f2.board.get(i))) board.add(f2.board.get(i));
 
         if(random.nextInt(100) < 5) mutation();
         Fitness();
@@ -36,7 +38,7 @@ public class entity implements Comparable<entity>{
 
 
     private void mutation(){
-        board[random.nextInt(size)] = random.nextInt(size);
+        Collections.swap(board, random.nextInt(size), random.nextInt(size));
     }
 
 
@@ -45,10 +47,10 @@ public class entity implements Comparable<entity>{
         fitness = 0;
         for(int col = 0; col<size; col++)
             for(int i = col + 1; i<size; i++) 
-                if(board[i] == board[col] || Math.abs(col - i) == Math.abs(board[col] - board[i])) fitness++; 
+                if(board.get(i) == board.get(col) || Math.abs(col - i) == Math.abs(board.get(col) - board.get(i))) fitness++; 
         
         fitness *= fitness;
-        fitness++;
+        fitness += 2;
 
     }
 
@@ -65,11 +67,8 @@ public class entity implements Comparable<entity>{
 
     @Override
     public boolean equals(Object obj){
-
         entity x = (entity) obj;
-        
         return x.fitness == fitness;
-
     }
 
 
@@ -77,10 +76,10 @@ public class entity implements Comparable<entity>{
 
         for(int i = 0; i<size; i++){
             for(int j = 0; j<size; j++)
-                System.out.print(((board[j] == i)? "👑": ((i+j)%2 == 1)? "⬛": "⬜"));
+                System.out.print(((board.get(j) == i)? "👑": ((i+j)%2 == 1)? "⬛": "⬜"));
             System.out.println();
-        }
-        System.out.println("fitness: " + (fitness - 1));
+
+        }System.out.println("fitness: " + (fitness - 2));
 
     }
 
