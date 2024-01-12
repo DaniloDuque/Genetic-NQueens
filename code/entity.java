@@ -19,6 +19,7 @@ public class entity implements Comparable<entity>{
     }
 
 
+
     public entity(entity f1, entity f2, int size){
 
         this.size = size;
@@ -27,7 +28,6 @@ public class entity implements Comparable<entity>{
         for(int i = 0; i<cross; i++){
             board.add(f1.board.get(i));
             msk.set(f1.board.get(i));
-
         }for(int i = 0; i<size; i++) if(!msk.get(f2.board.get(i))) board.add(f2.board.get(i));
 
         if(random.nextInt(100) < 5) mutation();
@@ -37,9 +37,11 @@ public class entity implements Comparable<entity>{
 
 
 
+
     private void mutation(){
         Collections.swap(board, random.nextInt(size), random.nextInt(size));
     }
+
 
 
     private void Fitness(){
@@ -47,7 +49,7 @@ public class entity implements Comparable<entity>{
         fitness = 0;
         for(int col = 0; col<size; col++)
             for(int i = col + 1; i<size; i++) 
-                if(board.get(i) == board.get(col) || Math.abs(col - i) == Math.abs(board.get(col) - board.get(i))) fitness++; 
+                if(Math.abs(col - i) == Math.abs(board.get(col) - board.get(i))) fitness++; 
         
         fitness *= fitness;
         fitness += 2;
@@ -72,6 +74,7 @@ public class entity implements Comparable<entity>{
     }
 
 
+
     public void showBoard(){
 
         for(int i = 0; i<size; i++){
@@ -82,8 +85,6 @@ public class entity implements Comparable<entity>{
         }System.out.println("fitness: " + (fitness - 2));
 
     }
-
-
 
 
 
